@@ -69,27 +69,28 @@ namespace BotFactory.Factories
                     //alors on peut ajouter un nouveau robot a la liste
                     var FqE = new FactoryQueueElement() { Name = name, Model = model, ParkingPos = parkingpos, WorkingPos = workingpos };
                     Queue.Enqueue(FqE);
-                   
-                        if (FactoryProgress != null)
+
+                    if (FactoryProgress != null)
                         FactoryProgress(FqE, null);
-                   
+
                     //si le nombre de robot à créer == 0 OU le nombre de robots en stock SUPÉRIEUR à la capacité de stockage
                     if (Queue.Count == 0 || Storage.Count > StorageCapacity)
                         return false;
 
                     {
-                        var robot = Activator.CreateInstance((model), new object[] { name });
-                        ITestingUnit unit = robot as ITestingUnit;
-                        QueueTime += TimeSpan.FromSeconds(unit.BuildTime);
-                        foreach (var i in Queue.ToArray())
+                        foreach (IFactoryQueueElement queue in Queue)
                         {
-                            await Task.Delay(TimeSpan.FromSeconds(unit.BuildTime));
+                            var robot = Activator.CreateInstance((queue.Model), new object[] { queue.Name = name });
+                            ITestingUnit test = robot as ITestingUnit;
+                            QueueTime += TimeSpan.FromSeconds(test.BuildTime);
+                            await Task.Delay(TimeSpan.FromSeconds(test.BuildTime));
+                            QueueTime -= TimeSpan.FromSeconds(test.BuildTime);
+                            Queue.Dequeue();
+                            Storage.Add(test);
+                            if (FactoryProgress != null)
+                                FactoryProgress(test, null);
                         }
-                        QueueTime -= TimeSpan.FromSeconds(unit.BuildTime);
-                        Queue.Dequeue();
-                        Storage.Add(unit);
-                        if (FactoryProgress != null)
-                            FactoryProgress(unit, null);
+
                         return true;
                     }
 
@@ -97,5 +98,30 @@ namespace BotFactory.Factories
             }
         }
     }
+    //var robot = Activator.CreateInstance((model), new object[] { name });
+    //ITestingUnit unit = robot as ITestingUnit;
+    //QueueTime += TimeSpan.FromSeconds(unit.BuildTime);
+    //await Task.Delay(TimeSpan.FromSeconds(unit.BuildTime)); 
+    //QueueTime -= TimeSpan.FromSeconds(unit.BuildTime);
+    //Queue.Dequeue();
+    //Storage.Add(unit);
+    //if (FactoryProgress != null)
+    //    FactoryProgress(unit, null);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
