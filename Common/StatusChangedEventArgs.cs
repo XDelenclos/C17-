@@ -10,15 +10,15 @@ namespace BotFactory.Models
 
     public class StatusChangedEventArgs : System.EventArgs, IStatusChangedEventArgs 
     {
+        public string NewStatus { get; set; }
         public StatusChangedEventArgs()
         {
 
         }
-        public StatusChangedEventArgs(string newStatus)
-        {
-            this.NewStatus = newStatus;
-        }
-        public string NewStatus { get; set; }
-       
+        //public StatusChangedEventArgs(string newStatus)
+        //{
+        //    this.NewStatus = newStatus;
+        //}
+              
     }    
 }

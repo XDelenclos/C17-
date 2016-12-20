@@ -9,10 +9,9 @@ namespace BotFactory.Interfaces
 {
     public interface IReportingUnit
     {
-        event OnStatusChangedDelegate UnitStatusChanged;
-                
+        event OnStatusChangedDelegate UnitStatusChanged;                
     }
-    public delegate void OnStatusChangedDelegate(object source, StatusChangedEventArgs args);
 
+    public delegate void OnStatusChangedDelegate(object source, StatusChangedEventArgs args);
 
 }

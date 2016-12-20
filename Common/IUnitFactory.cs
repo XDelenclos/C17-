@@ -18,6 +18,6 @@ namespace BotFactory.Interfaces
         Queue<IFactoryQueueElement> Queue { get; set; }
         List<ITestingUnit> Storage { get; set; }
         Task<bool> AddWorkableUnitToQueue(Type model, string name, Coordinates parkingpos, Coordinates workingpos);
-        
+
     }
 }

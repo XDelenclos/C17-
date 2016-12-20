@@ -7,6 +7,8 @@ using BotFactory.Interfaces;
 using BotFactory.Models.Tools;
 using System.Reflection;
 using BotFactory.Models;
+using System.Threading;
+using System.Timers;
 
 namespace BotFactory.Factories
 {
@@ -52,66 +54,101 @@ namespace BotFactory.Factories
 
         }
 
+        //public bool AddWorkableUnitToQueue(Type model, string name, Coordinates parkingpos, Coordinates workingpos)
+        //{
+        //    try
+        //    {
+        //        // si le nombre de robot à créer est SUPÉRIEUR à la file d'attente OU à la capacité de l'entrepot
+        //        if (Queue.Count > QueueCapacity || Queue.Count > StorageCapacity)
+        //            return false;
+
+        //        {
+
+        //            //alors on vérifie si (le nombre de robot à créer et le nombre de nombre en entrepot) +1 sont SUPÉRIEUR a la capacité de l'entrepot 
+        //            if ((Queue.Count + Storage.Count) + 1 > StorageCapacity)
+        //                return false;
+
+        //            {
+        //                //alors on peut ajouter un nouveau robot a la liste
+        //                var FqE = new FactoryQueueElement() { Name = name, Model = model, ParkingPos = parkingpos, WorkingPos = workingpos };
+        //                Queue.Enqueue(FqE);
+        //                if (FactoryProgress == null)
+        //                    FactoryProgress(FqE, null);
+
+        //                //si le nombre de robot à créer == 0 OU le nombre de robots en stock SUPÉRIEUR à la capacité de stockage
+        //                if (Queue.Count == 0 || Storage.Count > StorageCapacity)
+        //                    return false;
+
+        //                {
+        //                    var task =  Task.Factory.StartNew(() =>
+        //                    {
+        //                        var robot = Activator.CreateInstance((model), new object[] { name });
+        //                        ITestingUnit unit = robot as ITestingUnit;
+        //                        QueueTime += TimeSpan.FromSeconds(unit.BuildTime);
+        //                        Thread.Sleep(TimeSpan.FromSeconds(unit.BuildTime));
+        //                        return unit;
+        //                    });
+
+        //                    task.ConfigureAwait(true)
+        //                        .GetAwaiter()
+        //                        .OnCompleted(() => {
+        //                            var unit = task.Result;
+        //                            Queue.Dequeue();
+        //                            Storage.Add(unit);
+        //                            QueueTime -= TimeSpan.FromSeconds(unit.BuildTime);                           
+
+        //                        if (FactoryProgress == null)
+        //                            FactoryProgress(unit, null);
+        //                    });
+        //                    return true;
+        //                }
+        //            }
+        //        }
+        //    }
+
+
+        //    catch (ArgumentException)
+        //    {
+        //        return false;
+        //    }
+        //}
         public async Task<bool> AddWorkableUnitToQueue(Type model, string name, Coordinates parkingpos, Coordinates workingpos)
         {
-            try
+            // si le nombre de robot à créer est SUPÉRIEUR à la file d'attente OU à la capacité de l'entrepot
+            if (Queue.Count > QueueCapacity || Queue.Count > StorageCapacity)
+                return false;
+
             {
 
-                // si le nombre de robot à créer est SUPÉRIEUR à la file d'attente OU à la capacité de l'entrepot
-                if (Queue.Count > QueueCapacity || Queue.Count > StorageCapacity)
-
+                //alors on vérifie si (le nombre de robot à créer et le nombre de nombre en entrepot) +1 sont SUPÉRIEUR a la capacité de l'entrepot 
+                if ((Queue.Count + Storage.Count) + 1 > StorageCapacity)
                     return false;
 
                 {
+                    //alors on peut ajouter un nouveau robot a la liste
+                    var FqE = new FactoryQueueElement() { Name = name, Model = model, ParkingPos = parkingpos, WorkingPos = workingpos };
+                    Queue.Enqueue(FqE);
+                    if (FactoryProgress != null)
+                        FactoryProgress(FqE, null);
 
-                    //alors on vérifie si (le nombre de robot à créer et le nombre de nombre en entrepot) +1 sont SUPÉRIEUR a la capacité de l'entrepot 
-                    if ((Queue.Count + Storage.Count) + 1 > StorageCapacity)
-
+                    //si le nombre de robot à créer == 0 OU le nombre de robots en stock SUPÉRIEUR à la capacité de stockage
+                    if (Queue.Count == 0 || Storage.Count > StorageCapacity)
                         return false;
 
                     {
-                        //alors on peut ajouter un nouveau robot a la liste
-
-                        var FqE = new FactoryQueueElement() { Name = name, Model = model, ParkingPos = parkingpos, WorkingPos = workingpos };
-                        Queue.Enqueue(FqE);
-                        if (FactoryProgress == null)
-                            FactoryProgress(FqE, null);
-
-                        //si le nombre de robot à créer == 0 OU le nombre de robots en stock SUPÉRIEUR à la capacité de stockage
-                        if (Queue.Count == 0 || Storage.Count > StorageCapacity) 
-
-                            return false;
-
-                        {
-
-
-                            var robot = Activator.CreateInstance((model), new object[] { name });
-                            ITestingUnit unit = robot as ITestingUnit;
-                            QueueTime += TimeSpan.FromSeconds(unit.BuildTime);
-                            await Task.Delay(TimeSpan.FromSeconds(unit.BuildTime));
-                            Queue.Dequeue();
-                            Storage.Add(unit);
-                            QueueTime -= TimeSpan.FromSeconds(unit.BuildTime);
-
-                            if (FactoryProgress == null)
-
-                                FactoryProgress(unit, null);
-
-                            return true;
-                        }
+                        var robot = Activator.CreateInstance((model), new object[] { name });
+                        ITestingUnit unit = robot as ITestingUnit;
+                        QueueTime += TimeSpan.FromSeconds(unit.BuildTime);
+                        await Task.Delay(TimeSpan.FromSeconds(unit.BuildTime));
+                        QueueTime -= TimeSpan.FromSeconds(unit.BuildTime);
+                        Queue.Dequeue();
+                        Storage.Add(unit);
+                        if (FactoryProgress != null)
+                            FactoryProgress(unit, null);
+                        return true;
                     }
                 }
             }
-
-
-            catch (ArgumentException)
-            {
-                return false;
-            }
         }
-
-
-
-
     }
 }

@@ -15,7 +15,6 @@ namespace BotFactory.Interfaces
         bool IsWorking { get; set; }
         Task<bool> WorkBegins();
         Task<bool> WorkEnds();
-        
-        
+
     }
 }

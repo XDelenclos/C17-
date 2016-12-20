@@ -16,6 +16,7 @@ namespace BotFactory.Interfaces
         Coordinates CurrentPos { get; set; }
 
         Task<bool> Move(Coordinates destination);
+       // bool Move(Coordinates destination);
         
     }
 }
