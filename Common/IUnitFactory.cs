@@ -17,7 +17,8 @@ namespace BotFactory.Interfaces
         TimeSpan QueueTime { get; set; }
         Queue<IFactoryQueueElement> Queue { get; set; }
         List<ITestingUnit> Storage { get; set; }
-        Task<bool> AddWorkableUnitToQueue(Type model, string name, Coordinates parkingpos, Coordinates workingpos);
+        bool AddWorkableUnitToQueue(Type model, string name, Coordinates parkingpos, Coordinates workingpos);
+        Task<bool> BuildUnit(string name);
 
     }
 }

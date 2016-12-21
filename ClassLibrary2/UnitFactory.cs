@@ -16,7 +16,9 @@ namespace BotFactory.Factories
     {
         private int _storageCapacity;
         private int _queueCapacity;
+        public bool canCreate { get; set; }
 
+        #region Prop
         public event EventHandler FactoryProgress;
         public int StorageCapacity
         {
@@ -45,15 +47,19 @@ namespace BotFactory.Factories
         public Queue<IFactoryQueueElement> Queue { get; set; }
 
         public List<ITestingUnit> Storage { get; set; }
+        #endregion
+
+
         public UnitFactory(int queuecapacity, int storagecapacity)
         {
             this._queueCapacity = queuecapacity;
             this._storageCapacity = storagecapacity;
             Queue = new Queue<IFactoryQueueElement>();
             Storage = new List<ITestingUnit>();
+            canCreate = true;
         }
 
-        public async Task<bool> AddWorkableUnitToQueue(Type model, string name, Coordinates parkingpos, Coordinates workingpos)
+        public bool AddWorkableUnitToQueue(Type model, string name, Coordinates parkingpos, Coordinates workingpos)
         {
             // si le nombre de robot à créer est SUPÉRIEUR à la file d'attente OU à la capacité de l'entrepot
             if (Queue.Count > QueueCapacity - 1 || Queue.Count > StorageCapacity)
@@ -78,36 +84,59 @@ namespace BotFactory.Factories
                         return false;
 
                     {
-                        foreach (IFactoryQueueElement queue in Queue)
-                        {
-                            var robot = Activator.CreateInstance((queue.Model), new object[] { queue.Name = name });
-                            ITestingUnit test = robot as ITestingUnit;
-                            QueueTime += TimeSpan.FromSeconds(test.BuildTime);
-                            await Task.Delay(TimeSpan.FromSeconds(test.BuildTime));
-                            QueueTime -= TimeSpan.FromSeconds(test.BuildTime);
-                            Queue.Dequeue();
-                            Storage.Add(test);
-                            if (FactoryProgress != null)
-                                FactoryProgress(test, null);
+                        var robot = Activator.CreateInstance((model), new object[] { name });
+                        ITestingUnit unit = robot as ITestingUnit;
+                        TimeSpan _buildTime = TimeSpan.FromSeconds(unit.BuildTime);
+                        QueueTime += _buildTime;
+                        foreach (FactoryQueueElement element in Queue)
+                        {                            
+                            var t = Task.Run(() => BuildUnit(element.Name)).IsCompleted;
+                            if (t)
+                            {
+                                QueueTime -= _buildTime;                             
+                            }
                         }
-
                         return true;
                     }
-
                 }
             }
         }
+
+        public async Task<bool> BuildUnit(string name)
+        {
+
+            if (canCreate)
+            {
+                canCreate = false;
+                var t = Queue.Peek();
+                var robot = Activator.CreateInstance((t.Model), new object[] { t.Name = name });
+                ITestingUnit unit = robot as ITestingUnit;
+                TimeSpan _buildTime = TimeSpan.FromSeconds(unit.BuildTime);
+                //QueueTime += _buildTime;
+                await Task.Delay(_buildTime);
+                Queue.Dequeue();
+                //QueueTime -= _buildTime;
+                Storage.Add(unit);
+                FactoryProgress?.Invoke(unit, null);
+                canCreate = true;
+                return canCreate;
+            }
+            return false;
+        }
     }
-    //var robot = Activator.CreateInstance((model), new object[] { name });
-    //ITestingUnit unit = robot as ITestingUnit;
-    //QueueTime += TimeSpan.FromSeconds(unit.BuildTime);
-    //await Task.Delay(TimeSpan.FromSeconds(unit.BuildTime)); 
-    //QueueTime -= TimeSpan.FromSeconds(unit.BuildTime);
-    //Queue.Dequeue();
-    //Storage.Add(unit);
-    //if (FactoryProgress != null)
-    //    FactoryProgress(unit, null);
 }
+
+
+//var robot = Activator.CreateInstance((model), new object[] { name });
+//ITestingUnit unit = robot as ITestingUnit;
+//QueueTime += TimeSpan.FromSeconds(unit.BuildTime);
+//await Task.Delay(TimeSpan.FromSeconds(unit.BuildTime)); 
+//QueueTime -= TimeSpan.FromSeconds(unit.BuildTime);
+//Queue.Dequeue();
+//Storage.Add(unit);
+//if (FactoryProgress != null)
+//    FactoryProgress(unit, null);
+
 
 
 
