@@ -33,6 +33,12 @@ namespace BotFactory.Models
             this.r_name = name;
             this.CurrentPos = new Coordinates(0, 0);
         }
+
+        /// <summary>
+        /// Fonction Booléenne asynchrone (renvoyant TRUE or FALSE) permettant le déplacement des robots.
+        /// </summary>
+        /// <param name="destination">paramètre sous forme de coordonnées (x , y)</param>
+        /// <returns>  </returns>        
         public async Task<bool> Move(Coordinates destination)
         {
             if (CurrentPos.Equals(destination) != true)
@@ -43,8 +49,11 @@ namespace BotFactory.Models
             }
             else
             {
+                OnStatusChanged(new StatusChangedEventArgs { NewStatus = "Déjà ..." });
                 return false;
             }
         }
+       
+
     }
 }

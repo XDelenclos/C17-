@@ -17,7 +17,12 @@ namespace BotFactory.Models
         {
 
         }
-
+        /// <summary>
+        /// Fonction Booléenne asynchronne (renvoyant TRUE or FALSE) comparant 2 coordonnées (Coordinates),
+        /// Si elles sont différentes, elles déclenchent la fonction Move(coordinates destination) et met à jour le statut (NewStatus)
+        /// Sinon renvoye le statut (NewStatus): "Au travail"
+        /// </summary>
+        /// <returns></returns>
         public async Task<bool> WorkBegins()
         {
            
@@ -38,7 +43,12 @@ namespace BotFactory.Models
                 }
             
         }
-
+        /// <summary>
+        /// Fonction Booléenne asynchronne (renvoyant TRUE or FALSE) comparant 2 coordonnées (Coordinates),
+        /// Si elles sont différentes, elles déclenchent la fonction Move(coordinates destination) et met à jour le statut (NewStatus)
+        /// Sinon renvoye le statut (NewStatus): "Au Parking"
+        /// </summary>
+        /// <returns></returns>
         public async Task<bool> WorkEnds()
         {
            
