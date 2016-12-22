@@ -10,11 +10,9 @@ namespace BotFactory.Models
 {
     public abstract class WorkingUnit : BaseUnit, ITestingUnit
     {
-        #region prop
         public Coordinates ParkingPos { get; set; }
         public Coordinates WorkingPos { get; set; }
         public bool IsWorking { get; set; }
-        #endregion
         public WorkingUnit(string name, double vitesse = 1) : base(name, vitesse)
         {
 

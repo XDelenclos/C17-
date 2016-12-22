@@ -10,10 +10,8 @@ namespace BotFactory.Models.Tools
 {
     public class Coordinates : ICoordinates
     {
-        #region prop
         public double X { get; set; }
         public double Y { get; set; }
-        #endregion
         public Coordinates(double x , double y)
         {
             X = x;
