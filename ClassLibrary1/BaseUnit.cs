@@ -12,6 +12,7 @@ namespace BotFactory.Models
 {
     public abstract class BaseUnit : ReportingUnit, IBaseUnit
     {
+        #region prop
         private string r_name;
         public string Name
         {
@@ -27,6 +28,7 @@ namespace BotFactory.Models
         }
         public double Vitesse { get; set; }
         public Coordinates CurrentPos { get; set; }
+        #endregion
         public BaseUnit(string name, double vitesse = 1)
         {
             this.Vitesse = vitesse;
