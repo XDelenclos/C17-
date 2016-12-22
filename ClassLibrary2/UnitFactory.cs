@@ -54,9 +54,9 @@ namespace BotFactory.Factories
         {
             this._queueCapacity = queuecapacity;
             this._storageCapacity = storagecapacity;
-            Queue = new Queue<IFactoryQueueElement>();
+            Queue = new Queue<IFactoryQueueElement>();           // Queue system FIFO : First In First Out (1er entré, 1er dehors )
             Storage = new List<ITestingUnit>();
-            FlagWorking = false;            
+            FlagWorking = false;
         }
 
         /// <summary>
@@ -70,21 +70,19 @@ namespace BotFactory.Factories
         /// <returns></returns>
         public bool AddWorkableUnitToQueue(Type model, string name, Coordinates parkingpos, Coordinates workingpos)
         {
-            // si le nombre de robot à créer est SUPÉRIEUR à la file d'attente OU à la capacité de l'entrepot
+            // si le nombre de robot en file d'attente est SUPÉRIEUR à la file d'attente OU à la capacité de l'entrepot 
+            //OU  si la somme de la file d'attente et des robots déjà en entrepot est supérieur à la capacité totale de l'entreprot.
             if ((Queue.Count > QueueCapacity - 1 || Queue.Count > StorageCapacity) || ((Queue.Count + Storage.Count) + 1 > StorageCapacity))
                 return false;
 
             {
-                //alors on peut ajouter un nouveau robot a la liste
                 var FqE = new FactoryQueueElement() { Name = name, Model = model, ParkingPos = parkingpos, WorkingPos = workingpos };
-                Queue.Enqueue(FqE);
-                var robot = Activator.CreateInstance((model), new object[] { name });
+                Queue.Enqueue(FqE);                                                     //alors on peut ajouter un nouveau robot a la liste   
+                var robot = Activator.CreateInstance((model), new object[] { name });  //on instancie l'objet afin de mettre à jour le temps de la file d'attente totale.
                 ITestingUnit unit = robot as ITestingUnit;
                 QueueTime += TimeSpan.FromSeconds(unit.BuildTime);
-                FactoryProgress?.Invoke(FqE, null);
 
-                //si le nombre de robot à créer == 0 OU le nombre de robots en stock SUPÉRIEUR à la capacité de stockage
-                if (Queue.Count == 0 || Storage.Count > StorageCapacity)
+                if (Queue.Count == 0 || Storage.Count > StorageCapacity)              //si le nombre de robot à créer == 0 OU le nombre de robots en stock SUPÉRIEUR à la capacité de stockage
                     return false;
 
 
@@ -103,20 +101,15 @@ namespace BotFactory.Factories
             {
                 Task.Run(async () =>
               {
-                  // on passe le booléen qui identifie si l'usine est déjà en construction a VRAI
-                  FlagWorking = true;
-
-                  // tant que  la file d'attente n'est pas égale a 0
-                  while (Queue.Count != 0)
+                  FlagWorking = true;                   // on passe le booléen qui identifie si l'usine est déjà en construction a VRAI
+                  while (Queue.Count != 0)              // tant que la queue de la file d'attente est différente de 0
                   {
-                      // alors on attend la construction des robots en attentes
-                      await BuildUnit();
+                      await BuildUnit();                // alors on attend la construction du robot.
                   }
-
-                  // On repasse le booléen à faux car la construction du robo est terminée. 
-                  FlagWorking = false;
+                  FlagWorking = false;                  // On repasse le booléen à faux car la construction du robot est terminée. 
               });
             }
+            return;
         }
 
         /// <summary>
@@ -132,22 +125,18 @@ namespace BotFactory.Factories
 
             else
             {
-                // on instancie l'objet on prenant le 1er objet mis dans la queue
-                var t = Queue.Peek();
+                var t = Queue.Peek();                                                        // on instancie l'objet on prenant le 1er objet mis dans la queue
                 var robot = Activator.CreateInstance((t.Model), new object[] { t.Name });
                 ITestingUnit unit = robot as ITestingUnit;
-
-                // on récupère le temps de construction du robot
-                TimeSpan _buildTime = TimeSpan.FromSeconds(unit.BuildTime);
+                TimeSpan _buildTime = TimeSpan.FromSeconds(unit.BuildTime);                  // on récupère le temps de construction du robot
                 FactoryProgress?.Invoke(unit, null);
 
-                // on attend la construction du robot
-                await Task.Delay(_buildTime);
+                await Task.Delay(_buildTime);                                                // on attend la construction du robot
 
-                // une fois créé on le supprime de la File d'attente et on l'ajoute au Storage
-                Queue.Dequeue();
-                Storage.Add(unit);
-                QueueTime -= _buildTime;
+                Queue.Dequeue();                                                             // une fois créé on le supprime de la File d'attente 
+                Storage.Add(unit);                                                           //et on l'ajoute au Storage
+
+                QueueTime -= _buildTime;                                                     // on déduit son temps de création au temps de temps de la file d'attente totale.
                 FactoryProgress?.Invoke(unit, null);
 
                 return true;
