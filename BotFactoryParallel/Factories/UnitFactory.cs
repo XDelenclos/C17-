@@ -100,11 +100,10 @@ namespace BotFactory.Factories
             {
                 if (!FlagWorking)
                 {
-                    Thread t2 = new Thread(BuildUnit);
                     while (Queue.Count != 0)              // tant que la queue de la file d'attente est différente de 0
                     {
                         FlagWorking = true;
-                        t2.Start();
+                        BuildUnit();
                         FlagWorking = false;
                     }
                   
