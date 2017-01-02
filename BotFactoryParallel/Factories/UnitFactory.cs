@@ -13,7 +13,8 @@ namespace BotFactory.Factories
     {
         private int _storageCapacity;
         private int _queueCapacity;
-        private object _taskLock = new object();
+        
+        //private object _taskLock = new object();
 
         public bool FlagWorking { get; set; }
 
@@ -96,8 +97,8 @@ namespace BotFactory.Factories
         /// </summary>
         public void BuildTask()
         {
-            lock (_taskLock)
-            {
+            //lock (_taskLock)
+            //{
                 if (!FlagWorking)
                 {
                     while (Queue.Count != 0)              // tant que la queue de la file d'attente est différente de 0
@@ -110,7 +111,7 @@ namespace BotFactory.Factories
                 }
                 else
                     return;
-            }
+            //}
         }
 
         /// <summary>
