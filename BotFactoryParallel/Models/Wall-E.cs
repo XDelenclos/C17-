@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace BotFactory.Models
 {
-    public class T_800 : WorkingUnit
+   public class Wall_E : WorkingUnit
     {
-        public T_800(string name) : base(name, 3)
+        public Wall_E(string name) : base(name, 3)
         {
-            this.BuildTime = 10;
-            this.Model = "T-800";
-            this.WorkingPos = new Coordinates(3.1, 1.92);
-            this.ParkingPos = new Coordinates(0, 0);
+            this.BuildTime = 4;
+            this.Model = "Wall-E";
+            WorkingPos = new Coordinates(2, 2);
+            ParkingPos = new Coordinates(0, 0);
         }
     }
 }
